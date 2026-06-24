@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <script src="https://aframe.io"></script>
+    <script src="https://jsdelivr.net"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+
+    <div id="debug-log" style="position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #00ff00; padding: 15px; font-family: monospace; z-index: 99999; font-size: 14px; border-radius: 5px; max-width: 90%;">
+      System: Initializing AR Cam Engine... Touch screen if prompt fails.
+    </div>
+
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.001; filterBeta: 0.01;" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <video id="sofaVid" src="./sofa_catlouge.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      
+        <a-plane src="#sofaVid" position="0 0 0" height="1" width="1" rotation="0 0 0"></a-plane>
+      
+    </a-scene>
+
+    <script>
+      const logBox = document.querySelector('#debug-log');
+      const targetEntity = document.querySelector('#catalogue-target');
+      const video = document.querySelector('#sofaVid');
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then((stream) => {
+          logBox.innerHTML = "✅ Camera Found! Point your phone at the catalogue cover image.";
+          logBox.style.color = "#00ff00";
+        })
+        .catch((err) => {
+          logBox.innerHTML = "❌ CAMERA BLOCKED.<br>Error: " + err.name + "<br>Fix: Please copy this link and open it inside Chrome or Safari app directly.";
+          logBox.style.color = "#ff0000";
+        });
+
+      window.addEventListener('click', () => {
+        video.play();
+        video.pause();
+      }, {once: true});
+
+      targetEntity.addEventListener("targetFound", () => {
+        logBox.style.display = "none"; 
+        video.play();
+      });
+
+      targetEntity.addEventListener("targetLost", () => {
+        video.pause();
+      });
+    </script>
+  </body>
+</html>
